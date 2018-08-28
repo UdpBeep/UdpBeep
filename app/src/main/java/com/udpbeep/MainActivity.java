@@ -94,19 +94,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void BtnBase1OnClick(View view) {
         BaseTime = Chrono.DeclareBase(1);
-        if (BaseTime>=0) {
-            TextCounter.setText(String.format("%10.3f \t\t%s",BaseTime, TextCounter.getText()));
-        }
+        updateTextCounter(BaseTime);
         Base++;
     }
 
     public void BtnBase2OnClick(View view) {
         BaseTime = Chrono.DeclareBase(2);
-        if (BaseTime>=0) {
-            TextCounter.setText(String.format("%10.3f \t\t%s",BaseTime, TextCounter.getText()));
-        }
+        updateTextCounter(BaseTime);
         Base++;
     }
+
+    public void updateTextCounter(final double time) {
+        if (BaseTime>=0) {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    TextCounter.setText(String.format("%10.3f \t\t%s",time, TextCounter.getText()));
+                }
+            });
+        }
+    }
+
     private class UdpServerThread extends Thread{
 
         int serverPort;
@@ -148,9 +157,7 @@ public class MainActivity extends AppCompatActivity {
 					toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200); // 200 is duration in ms
                     IpAddress = packet.getAddress().getAddress();
                     BaseTime = Chrono.DeclareBase(IpAddress[3]);
-                    if (BaseTime>=0) {
-                        TextCounter.setText(String.format("%10.3f \t\t%s",BaseTime, TextCounter.getText()));
-                    }
+                    updateTextCounter(BaseTime);
                 }
                 Log.e(TAG, "UDP Server ended");
 
