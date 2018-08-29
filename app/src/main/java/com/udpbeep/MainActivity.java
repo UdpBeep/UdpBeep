@@ -17,6 +17,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import static com.udpbeep.F3FChrono.Mode.Practice;
 import static com.udpbeep.F3FChrono.Mode.Test;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,16 +26,14 @@ public class MainActivity extends AppCompatActivity {
 
     TextView infoIp, infoPort;
     TextView textViewState, textViewPrompt;
-    TextView TextCounter;
+    TextView textCounter;
 
     int TimerId=0;
 
-    static final int UdpServerPORT = 4445;
-    static final int NbSecond = 0;
+    static final int udpServerPORT = 4445;
     UdpServerThread udpServerThread;
-    static F3FChrono Chrono;
-    static int Base=0;
-    static double BaseTime=0;
+    static F3FChrono chrono;
+    static int base =0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,21 +44,22 @@ public class MainActivity extends AppCompatActivity {
         infoPort = (TextView) findViewById(R.id.infoport);
         textViewState = (TextView)findViewById(R.id.state);
         textViewPrompt = (TextView)findViewById(R.id.prompt);
-        TextCounter = (TextView)findViewById(R.id.Counter);
+        textCounter = (TextView)findViewById(R.id.Counter);
 
         infoIp.setText(getIpAddress());
-        infoPort.setText(String.valueOf(UdpServerPORT));
-        TextCounter.setText("");
+        infoPort.setText(String.valueOf(udpServerPORT));
+        textCounter.setText("");
 
-        Chrono = new F3FChrono();
-        Chrono.Create(Test);
+        chrono = new F3FChrono();
+        chrono.create(Test);
+        chrono.start(Practice);
 
 
     }
 
     @Override
     protected void onStart() {
-        udpServerThread = new UdpServerThread(UdpServerPORT);
+        udpServerThread = new UdpServerThread(udpServerPORT);
         udpServerThread.start();
         super.onStart();
     }
@@ -93,27 +93,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void BtnBase1OnClick(View view) {
-        BaseTime = Chrono.DeclareBase(1);
-        updateTextCounter(BaseTime);
-        Base++;
+        if(chrono.declareBase(1)) {
+            updateTextCounter(chrono.getLapCount(), chrono.getLastLapTime(),
+                    chrono.getLast10BasesTime(), chrono.getLast10BasesLostTime());
+        }
+        base++;
     }
 
     public void BtnBase2OnClick(View view) {
-        BaseTime = Chrono.DeclareBase(2);
-        updateTextCounter(BaseTime);
-        Base++;
+        if(chrono.declareBase(2)) {
+            updateTextCounter(chrono.getLapCount(), chrono.getLastLapTime(),
+                    chrono.getLast10BasesTime(), chrono.getLast10BasesLostTime());
+        }
+        base++;
     }
 
-    public void updateTextCounter(final double time) {
-        if (BaseTime>=0) {
-            runOnUiThread(new Runnable() {
+    public void updateTextCounter(final int count, final double time, final double runTime,
+                                  final double lostTime) {
+        runOnUiThread(new Runnable() {
 
-                @Override
-                public void run() {
-                    TextCounter.setText(String.format("%10.3f \t\t%s",time, TextCounter.getText()));
-                }
-            });
-        }
+            @Override
+            public void run() {
+                textCounter.setText(String.format("%d: %10.3f ; 10 laps : %10.3f; lost : %10.3f \n%s",
+                        count, time, runTime, lostTime, textCounter.getText()));
+                //System.out.println(String.format("%d: %10.3f ; run : %10.3f ; lost : %10.3f",
+                //        count, time, runTime, lostTime));
+            }
+        });
     }
 
     private class UdpServerThread extends Thread{
@@ -145,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 updateState("UDP Server is running");
                 Log.e(TAG, "UDP Server is running");
 
-                ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 750);
+                ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME);
 
                 while(running){
                     byte[] buf = new byte[256];
@@ -156,8 +162,10 @@ public class MainActivity extends AppCompatActivity {
 
 					toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200); // 200 is duration in ms
                     IpAddress = packet.getAddress().getAddress();
-                    BaseTime = Chrono.DeclareBase(IpAddress[3]);
-                    updateTextCounter(BaseTime);
+                    if(chrono.declareBase(IpAddress[3])) {
+                        updateTextCounter(chrono.getLapCount(), chrono.getLastLapTime(),
+                                chrono.getLast10BasesTime(), chrono.getLast10BasesLostTime());
+                    }
                 }
                 Log.e(TAG, "UDP Server ended");
 
