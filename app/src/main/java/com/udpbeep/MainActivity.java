@@ -19,13 +19,14 @@ import java.util.Enumeration;
 
 import static com.udpbeep.F3FChrono.Mode.Practice;
 import static com.udpbeep.F3FChrono.Mode.Test;
+import static java.lang.Math.min;
 
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
     TextView infoIp, infoPort;
-    TextView textViewState, textViewPrompt;
+    TextView textViewState;
     TextView textCounter;
 
     int TimerId=0;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         infoIp = (TextView) findViewById(R.id.infoip);
         infoPort = (TextView) findViewById(R.id.infoport);
         textViewState = (TextView)findViewById(R.id.state);
-        textViewPrompt = (TextView)findViewById(R.id.prompt);
         textCounter = (TextView)findViewById(R.id.Counter);
 
         infoIp.setText(getIpAddress());
@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         chrono = new F3FChrono();
         chrono.create(Test);
         chrono.start(Practice);
+
+        textCounter.setTextSize((float)60.0);
 
 
     }
@@ -83,15 +85,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updatePrompt(final String prompt){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textViewPrompt.append(prompt);
-            }
-        });
-    }
-
     public void BtnBase1OnClick(View view) {
         if(chrono.declareBase(1)) {
             updateTextCounter(chrono.getLapCount(), chrono.getLastLapTime(),
@@ -108,14 +101,35 @@ public class MainActivity extends AppCompatActivity {
         base++;
     }
 
+    public void resetButton(View view) {
+        chrono.reset();
+        updateTextCounter(chrono.getLapCount(), chrono.getLastLapTime(),
+                chrono.getLast10BasesTime(), chrono.getLast10BasesLostTime());
+    }
+
+    public void startRace(View view) {
+        chrono.startRace();
+        updateTextCounter(chrono.getLapCount(), chrono.getLastLapTime(),
+                chrono.getLast10BasesTime(), chrono.getLast10BasesLostTime());
+    }
+
     public void updateTextCounter(final int count, final double time, final double runTime,
                                   final double lostTime) {
         runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                textCounter.setText(String.format("%d: %10.3f ; 10 laps : %10.3f; lost : %10.3f \n%s",
-                        count, time, runTime, lostTime, textCounter.getText()));
+                //textCounter.setText(String.format("%d: %10.3f ; 10 laps : %10.3f; lost : %10.3f \n%s",
+                //        count, time, runTime, lostTime, textCounter.getText()));
+                if (chrono.isInStart()) {
+                    textCounter.setText("In Start");
+                }
+                else {
+                    textCounter.setText(String.format("%10.3f \n %10.3f  \n %d/%d",runTime,lostTime,min(10, count),count));
+                }
+
+
+
                 //System.out.println(String.format("%d: %10.3f ; run : %10.3f ; lost : %10.3f",
                 //        count, time, runTime, lostTime));
             }

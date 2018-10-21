@@ -1,74 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:orientation="vertical"
     tools:context="com.blogspot.android_er.androidudpserver.MainActivity">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:autoLink="web"
-        android:text="http://android-er.blogspot.com/"
-        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/infoip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="italic" />
+        android:text="ip"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/infoport"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <TextView
         android:id="@+id/infoport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="italic" />
+        android:text="port"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/state"
+        app:layout_constraintTop_toBottomOf="@+id/infoip" />
 
     <TextView
         android:id="@+id/state"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="un-initiated"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/Counter"
+        app:layout_constraintTop_toBottomOf="@+id/infoport"
 
-    <TextView
-        android:id="@+id/prompt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18dp"/>
+        tools:layout_editor_absoluteY="69dp" />
 
     <TextView
         android:id="@+id/Counter"
-        android:layout_width="match_parent"
-        android:layout_height="270dp"
-        android:text="TextView" />
+        android:layout_width="wrap_content"
+        android:layout_height="230dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/state" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:id="@+id/linearLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintTop_toBottomOf="@+id/Counter">
 
         <Button
             android:id="@+id/buttonBase"
-            android:layout_width="337dp"
-            android:layout_height="wrap_content"
+            android:layout_width="250dp"
+            android:layout_height="100dp"
             android:layout_weight="1"
             android:onClick="BtnBase1OnClick"
-            android:text="Declare Base"
+            android:text="Base A"
             android:visibility="visible" />
 
         <Button
             android:id="@+id/buttonBase2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="250dp"
+            android:layout_height="100dp"
             android:layout_weight="1"
             android:onClick="BtnBase2OnClick"
-            android:text="Declare Base2"
+            android:text="Base B"
             android:visibility="visible" />
+
 
     </LinearLayout>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="250dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:onClick="resetButton"
+            android:text="Reset" />
+
+        <Button
+            android:id="@+id/buttonStart"
+            android:layout_width="250dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:onClick="startRace"
+            android:text="Start"
+            android:visibility="visible" />
+
+
+    </LinearLayout>
+
+
+
+</android.support.constraint.ConstraintLayout>

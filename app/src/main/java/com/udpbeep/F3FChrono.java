@@ -34,6 +34,8 @@ public class F3FChrono {
     long lastBaseChangeTime;
     long lastDetectionTime;
 
+    private boolean inStart;
+
     //Init class F3F Chrono
     public int create(Mode mode){
 
@@ -63,6 +65,7 @@ public class F3FChrono {
         pmode=mode;
         last10BasesTime = 0.0;
         last10BasesTimeLoss = 0.0;
+        inStart = false;
 
         System.out.println("F3F Initialisation " + mode);
         return 0;
@@ -74,8 +77,36 @@ public class F3FChrono {
         return 0;
     }
 
+    public void reset() {
+        last10BasesTime = 0.0;
+        last10BasesTimeLoss = 0.0;
+        chronoLap.clear();
+        timeLoss.clear();
+    }
+
+    public void startRace() {
+        last10BasesTime = 0.0;
+        last10BasesTimeLoss = 0.0;
+        inStart = true;
+        lastBase = -1;
+        chronoLap.clear();
+        timeLoss.clear();
+    }
+
+    public boolean isInStart() {
+        return inStart;
+    }
+
     public boolean declareBase(int base){
         long now = System.currentTimeMillis();
+        if (inStart) {
+            lastBaseChangeTime = now;
+            last10BasesTime = 0.0;
+            last10BasesTimeLoss = 0.0;
+            chronoLap.clear();
+            timeLoss.clear();
+            inStart = false;
+        }
         if (base!=this.lastBase){
             double elapsedTime = (double) ((now- lastBaseChangeTime)/1000.00);
             lastBaseChangeTime = now;
@@ -94,9 +125,11 @@ public class F3FChrono {
             return true;
         }else{
             //Base declaration is the same
-            double elapsedTime = (double) ((now- lastDetectionTime)/1000.00);
-            lastDetectionTime = now;
-            timeLoss.set(getLapCount()-1,timeLoss.get(getLapCount()-1)+elapsedTime);
+            if (getLapCount()>1) {
+                double elapsedTime = (double) ((now - lastDetectionTime) / 1000.00);
+                lastDetectionTime = now;
+                timeLoss.set(getLapCount() - 1, timeLoss.get(getLapCount() - 1) + elapsedTime);
+            }
             return false;
         }
     }
@@ -110,7 +143,12 @@ public class F3FChrono {
     }
 
     public double getLastLapTime() {
-        return chronoLap.get(getLapCount()-1);
+        if (getLapCount()>1) {
+            return chronoLap.get(getLapCount() - 1);
+        }
+        else {
+            return 0.0;
+        }
     }
 
     public int getLapCount() {
